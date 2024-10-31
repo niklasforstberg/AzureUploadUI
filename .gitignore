@@ -1,3 +1,10 @@
+# Prompts
+/prompts
+
+# API Info
+/api_info.md
+api_info.md
+
 # Dependencies
 /node_modules
 /.pnp
