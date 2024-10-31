@@ -15,8 +15,8 @@ export const fileService = {
     return data
   },
   
-  deleteFile: async (fileName) => {
-    const { data } = await api.delete(`/storage/files/${fileName}`)
+  deleteFile: async (blobName) => {
+    const { data } = await api.delete(`/storage/files/${blobName}`)
     return data
   },
   

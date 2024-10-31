@@ -9,7 +9,6 @@ import {
 import { CloudUpload } from '@mui/icons-material'
 import { useFiles } from '../hooks/useFiles'
 import { FilesList } from '../components/files/FilesList'
-// We'll need to create FileUploader component next
 import { FileUploader } from '../components/files/FileUploader'
 
 export function FilesPage() {
@@ -65,7 +64,6 @@ export function FilesPage() {
         <FilesList files={files} />
       )}
 
-      {/* We'll need to create this component next */}
       <FileUploader 
         open={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}

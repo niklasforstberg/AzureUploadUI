@@ -19,5 +19,10 @@ export const authService = {
   register: async (userData) => {
     const { data } = await api.post('/auth/register', userData)
     return data
+  },
+  
+  deleteUser: async (userId) => {
+    const { data } = await api.delete(`/auth/users/${userId}`)
+    return data
   }
 }

@@ -14,8 +14,6 @@ import {
   ListItemText,
   ListItemButton,
   Avatar,
-  Menu,
-  MenuItem,
   Divider
 } from '@mui/material';
 import { 
@@ -24,7 +22,8 @@ import {
   CloudUpload,
   Person,
   AdminPanelSettings,
-  ChevronLeft
+  Logout as LogoutIcon,
+  AccountCircle,
 } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 
@@ -33,28 +32,26 @@ const DRAWER_WIDTH = 240;
 export const Layout = () => {
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
-    setOpen(!open);
+    setMenuOpen(!menuOpen);
   };
 
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleProfileMenuClose = () => {
-    setAnchorEl(null);
+  const handleProfileToggle = () => {
+    setProfileOpen(!profileOpen);
   };
 
   const handleLogout = () => {
-    handleProfileMenuClose();
+    setProfileOpen(false);
     logout();
   };
 
   const handleNavigate = (path) => {
     navigate(path);
+    setMenuOpen(false);
+    setProfileOpen(false);
   };
 
   const menuItems = [
@@ -73,28 +70,16 @@ export const Layout = () => {
         position="fixed"
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          transition: (theme) =>
-            theme.transitions.create(['width', 'margin'], {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.leavingScreen,
-            }),
-          ...(open && {
-            marginLeft: DRAWER_WIDTH,
-            width: `calc(100% - ${DRAWER_WIDTH}px)`,
-            transition: (theme) =>
-              theme.transitions.create(['width', 'margin'], {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-          }),
+          width: '100%'
         }}
       >
         <Toolbar>
           <IconButton
             color="inherit"
+            aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ marginRight: 2 }}
+            sx={{ mr: 2 }}
           >
             <MenuIcon />
           </IconButton>
@@ -102,59 +87,105 @@ export const Layout = () => {
             Azure Upload
           </Typography>
           <IconButton
-            onClick={handleProfileMenuOpen}
+            onClick={handleProfileToggle}
             size="small"
             sx={{ ml: 2 }}
           >
             <Avatar sx={{ width: 32, height: 32 }}>
-              {user?.username?.[0]?.toUpperCase()}
+              {user?.username?.charAt(0).toUpperCase()}
             </Avatar>
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleProfileMenuClose}
-            onClick={handleProfileMenuClose}
-          >
-            <MenuItem onClick={() => handleNavigate('/profile')}>
-              Profile
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </Menu>
         </Toolbar>
       </AppBar>
 
       <Drawer
-        variant="permanent"
-        open={open}
+        variant="temporary"
+        open={menuOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
         sx={{
-          width: DRAWER_WIDTH,
-          flexShrink: 0,
-          whiteSpace: 'nowrap',
-          boxSizing: 'border-box',
-          ...(open && {
-            '& .MuiDrawer-paper': {
-              width: DRAWER_WIDTH,
-              transition: (theme) =>
-                theme.transitions.create('width', {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.enteringScreen,
-                }),
-            },
-          }),
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+            top: ['48px', '56px', '64px'],
+            height: `calc(100% - 64px)`,
+          },
         }}
       >
-        <Divider />
-        <List sx={{ width: DRAWER_WIDTH }}>
+        <List>
           {menuItems.map((item) => (
-            <ListItemButton 
-              key={item.text}
-              onClick={() => handleNavigate(item.path)}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton
+                onClick={() => handleNavigate(item.path)}
+              >
+                <ListItemIcon>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
           ))}
+        </List>
+      </Drawer>
+
+      <Drawer
+        variant="temporary"
+        anchor="right"
+        open={profileOpen}
+        onClose={handleProfileToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+            top: ['48px', '56px', '64px'],
+            height: `calc(100% - 64px)`,
+          },
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 2, 
+            mb: 2 
+          }}>
+            <Avatar sx={{ width: 40, height: 40 }}>
+              {user?.username?.charAt(0).toUpperCase()}
+            </Avatar>
+            <Box>
+              <Typography variant="subtitle1">
+                {user?.username}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {user?.role}
+              </Typography>
+            </Box>
+          </Box>
+          <Divider sx={{ my: 1 }} />
+        </Box>
+        
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => handleNavigate('/profile')}>
+              <ListItemIcon>
+                <AccountCircle />
+              </ListItemIcon>
+              <ListItemText primary="My Profile" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText primary="Logout" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
 
@@ -163,8 +194,8 @@ export const Layout = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          mt: 8,
-          width: '100%'
+          width: '100%',
+          mt: '64px',
         }}
       >
         <Outlet />
