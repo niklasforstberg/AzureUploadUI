@@ -11,3 +11,7 @@ TODO:
 - Add a way to sort files by name, size, etc.
 - Remove the dashboard page
 - Add a way to contact support?
+- Let users change their password
+- Let users change their name?
+- Let admin change users password
+- Let admin change users name
