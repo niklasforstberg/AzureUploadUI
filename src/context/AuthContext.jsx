@@ -1,26 +1,23 @@
 import { createContext, useContext, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
 
   const login = useCallback(async (userData) => {
     setUser(userData)
     localStorage.setItem('token', userData.token)
-    navigate('/dashboard')
+    navigate('/files')
   }, [navigate])
 
   const logout = useCallback(() => {
     setUser(null)
     localStorage.removeItem('token')
-    queryClient.clear()
     navigate('/login')
-  }, [navigate, queryClient])
+  }, [navigate])
 
   const value = {
     user,

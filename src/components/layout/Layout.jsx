@@ -55,7 +55,6 @@ export const Layout = () => {
   };
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
     { text: 'Files', icon: <CloudUpload />, path: '/files' },
     { text: 'Profile', icon: <Person />, path: '/profile' },
   ];
