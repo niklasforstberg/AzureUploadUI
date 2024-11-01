@@ -4,9 +4,15 @@ import {
   Tooltip,
   Snackbar,
   Box,
-  Collapse,
-  Paper,
   IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Collapse,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -17,8 +23,8 @@ import {
 import { 
   Delete, 
   ContentCopy, 
-  ExpandMore, 
-  ExpandLess 
+  KeyboardArrowDown,
+  KeyboardArrowUp
 } from '@mui/icons-material'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { fileService } from '../../services/fileService'
@@ -37,17 +43,6 @@ export function FilesList({ files }) {
     }
   })
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString()
-  }
-
-  const formatSize = (bytes) => {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    if (bytes === 0) return '0 Byte'
-    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)))
-    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i]
-  }
-
   const handleCopyUrl = async (uri) => {
     try {
       await navigator.clipboard.writeText(uri)
@@ -57,111 +52,122 @@ export function FilesList({ files }) {
     }
   }
 
-  const toggleExpand = (id) => {
-    setExpandedId(expandedId === id ? null : id)
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString()
   }
 
-  const handleDeleteClick = (file) => {
-    setDeleteFile(file)
-  }
-
-  const handleDeleteConfirm = () => {
-    if (deleteFile) {
-      deleteMutation.mutate(deleteFile.blobName)
-    }
-  }
-
-  const handleDeleteCancel = () => {
-    setDeleteFile(null)
-    deleteMutation.reset()
+  const formatSize = (bytes) => {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    if (bytes === 0) return '0 Byte'
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)))
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i]
   }
 
   return (
     <>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {files.map((file) => (
-          <Paper 
-            key={file.id}
-            elevation={1}
-            sx={{ overflow: 'hidden' }}
-          >
-            <Box
-              sx={{
-                p: 2,
-                '&:hover': { bgcolor: 'action.hover' },
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 1
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography>{file.blobName}</Typography>
-                  <IconButton 
-                    size="small" 
-                    onClick={() => toggleExpand(file.id)}
-                  >
-                    {expandedId === file.id ? <ExpandLess /> : <ExpandMore />}
-                  </IconButton>
-                </Box>
-                <IconButton 
-                  color="error" 
-                  size="small"
-                  onClick={() => handleDeleteClick(file)}
-                >
-                  <Delete />
-                </IconButton>
-              </Box>
-
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1,
-                color: 'text.secondary',
-                fontSize: '0.875rem',
-                wordBreak: 'break-all'
-              }}>
-                {file.azureUri}
-                <Tooltip title="Copy URL">
-                  <IconButton 
-                    onClick={() => handleCopyUrl(file.azureUri)}
-                    color="primary"
-                    size="small"
-                    sx={{ flexShrink: 0 }}
-                  >
-                    <ContentCopy />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Box>
-            
-            <Collapse in={expandedId === file.id} timeout="auto">
-              <Box 
+      <TableContainer component={Paper}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell padding="checkbox" />
+              <TableCell>Name</TableCell>
+              <TableCell align="right">Uploaded</TableCell>
+              <TableCell sx={{ pr: 0 }}>URL</TableCell>
+              <TableCell align="right" sx={{ pl: 1 }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {files.map((file) => [
+              <TableRow 
+                key={`${file.id}-main`}
                 sx={{ 
-                  p: 2, 
-                  bgcolor: 'action.hover',
-                  borderTop: '1px solid',
-                  borderColor: 'divider',
+                  '&:hover': { bgcolor: 'action.hover' },
+                  cursor: 'pointer'
                 }}
               >
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Original Filename: {file.fileName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Size: {formatSize(file.size)}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Uploaded: {formatDate(file.uploadDate)}
-                </Typography>
-              </Box>
-            </Collapse>
-          </Paper>
-        ))}
-      </Box>
+                <TableCell padding="checkbox">
+                  <IconButton
+                    size="small"
+                    onClick={() => setExpandedId(expandedId === file.id ? null : file.id)}
+                  >
+                    {expandedId === file.id ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                  </IconButton>
+                </TableCell>
+                <TableCell 
+                  component="th" 
+                  scope="row"
+                  onClick={() => setExpandedId(expandedId === file.id ? null : file.id)}
+                >
+                  {file.blobName}
+                </TableCell>
+                <TableCell 
+                  align="right"
+                  onClick={() => setExpandedId(expandedId === file.id ? null : file.id)}
+                >
+                  {formatDate(file.uploadDate)}
+                </TableCell>
+                <TableCell 
+                  sx={{
+                    maxWidth: '300px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'monospace',
+                    fontSize: '0.8rem',
+                    pr: 0
+                  }}
+                >
+                  {file.azureUri}
+                </TableCell>
+                <TableCell 
+                  align="right" 
+                  sx={{ 
+                    whiteSpace: 'nowrap',
+                    pl: 1
+                  }}
+                >
+                  <IconButton 
+                    size="small" 
+                    onClick={() => handleCopyUrl(file.azureUri)}
+                    color="primary"
+                  >
+                    <ContentCopy fontSize="small" />
+                  </IconButton>
+                  <IconButton 
+                    size="small" 
+                    onClick={() => setDeleteFile(file)}
+                    color="error"
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </TableCell>
+              </TableRow>,
+              <TableRow key={`${file.id}-collapse`}>
+                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                  <Collapse in={expandedId === file.id} timeout="auto" unmountOnExit>
+                    <Box sx={{ py: 2, px: 3 }}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        File Details
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Original Filename: {file.fileName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Size: {formatSize(file.size)}
+                      </Typography>
+                    </Box>
+                  </Collapse>
+                </TableCell>
+              </TableRow>
+            ])}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={Boolean(deleteFile)}
-        onClose={handleDeleteCancel}
+        onClose={() => setDeleteFile(null)}
       >
         <DialogTitle>Delete File</DialogTitle>
         <DialogContent>
@@ -181,13 +187,13 @@ export function FilesList({ files }) {
         </DialogContent>
         <DialogActions>
           <Button 
-            onClick={handleDeleteCancel}
+            onClick={() => setDeleteFile(null)}
             disabled={deleteMutation.isPending}
           >
             Cancel
           </Button>
           <Button
-            onClick={handleDeleteConfirm}
+            onClick={() => deleteMutation.mutate(deleteFile.blobName)}
             color="error"
             variant="contained"
             disabled={deleteMutation.isPending}
