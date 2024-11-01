@@ -7,31 +7,37 @@ import { Dashboard } from './pages/DashboardPage'
 import { FilesPage } from './pages/FilesPage'
 import { AdminPage } from './pages/AdminPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { ThemeProvider } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
+import { theme } from './theme'
 
 function App() {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<LoginForm />} />
-      
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/files" element={<FilesPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          
-          {/* Admin routes */}
-          <Route element={<AdminRoute />}>
-            <Route path="/admin/*" element={<AdminPage />} />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<LoginForm />} />
+        
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/files" element={<FilesPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            
+            {/* Admin routes */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin/*" element={<AdminPage />} />
+            </Route>
           </Route>
         </Route>
-      </Route>
 
-      {/* Catch all */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Catch all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </ThemeProvider>
   )
 }
 
