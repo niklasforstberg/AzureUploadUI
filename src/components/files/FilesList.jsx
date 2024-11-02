@@ -55,7 +55,13 @@ export function FilesList({ files }) {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString()
+    return new Date(dateString).toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   const formatSize = (bytes) => {
@@ -71,11 +77,11 @@ export function FilesList({ files }) {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox" />
-              <TableCell>Name</TableCell>
-              <TableCell align="right">Uploaded</TableCell>
-              <TableCell sx={{ pr: 0 }}>URL</TableCell>
-              <TableCell align="right" sx={{ pl: 1 }}>Actions</TableCell>
+              <TableCell padding="checkbox" sx={{ width: '40px' }} />
+              <TableCell sx={{ width: '200px' }}>Name</TableCell>
+              <TableCell align="right" sx={{ width: '150px' }}>Uploaded</TableCell>
+              <TableCell sx={{ pr: 0, width: 'auto' }}>URL</TableCell>
+              <TableCell align="right" sx={{ pl: 1, width: '100px' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

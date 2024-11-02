@@ -2,8 +2,12 @@ import { api } from './api'
 
 export const authService = {
   login: async (credentials) => {
-    const { data } = await api.post('/auth/login', credentials)
-    return data
+    try {
+      const { data } = await api.post('/auth/login', credentials)
+      return data
+    } catch (error) {
+      throw error
+    }
   },
   
   getCurrentUser: async () => {
@@ -29,6 +33,14 @@ export const authService = {
   adminChangePassword: async ({ userId, newPassword }) => {
     const response = await api.put('/auth/admin/change-password', {
       userId,
+      newPassword
+    })
+    return response.data
+  },
+  
+  changePassword: async ({ currentPassword, newPassword }) => {
+    const response = await api.put('/auth/change-password', {
+      currentPassword,
       newPassword
     })
     return response.data

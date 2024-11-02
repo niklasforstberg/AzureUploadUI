@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { 
   Box,
@@ -15,54 +15,37 @@ import { useAuth } from '../../context/AuthContext'
 import { authService } from '../../services/authService'
 
 export function LoginForm() {
-  const { login, isAuthenticated } = useAuth()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   })
+  const [loginError, setLoginError] = useState(null)
   
   const loginMutation = useMutation({
     mutationFn: authService.login,
     onSuccess: (data) => {
+      setLoginError(null)
       login(data)
-    }
+    },
+    onError: (error) => {
+      setLoginError(error.response?.data?.message || 'Login failed')
+    },
+    retry: false
   })
 
-  // Redirect if already logged in
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />
-  }
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    loginMutation.mutate(formData)
-  }
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    if (!loginMutation.isPending) {
+      setLoginError(null)
+      loginMutation.mutate(formData)
+    }
   }
 
   return (
     <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Paper 
-          elevation={3}
-          sx={{
-            p: 4,
-            width: '100%',
-          }}
-        >
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
           <Typography 
             variant="h4" 
             component="h1" 
@@ -72,12 +55,12 @@ export function LoginForm() {
             Login
           </Typography>
 
-          {loginMutation.error && (
+          {loginError && (
             <Alert 
               severity="error" 
               sx={{ mb: 2 }}
             >
-              {loginMutation.error.response?.data?.message || 'Login failed'}
+              {loginError}
             </Alert>
           )}
 
@@ -87,10 +70,13 @@ export function LoginForm() {
               label="Username"
               name="username"
               value={formData.username}
-              onChange={handleChange}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                [e.target.name]: e.target.value
+              }))}
               margin="normal"
               required
-              error={loginMutation.error && !formData.username}
+              disabled={loginMutation.isPending}
             />
             
             <TextField
@@ -99,10 +85,13 @@ export function LoginForm() {
               name="password"
               type="password"
               value={formData.password}
-              onChange={handleChange}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                [e.target.name]: e.target.value
+              }))}
               margin="normal"
               required
-              error={loginMutation.error && !formData.password}
+              disabled={loginMutation.isPending}
             />
 
             <LoadingButton

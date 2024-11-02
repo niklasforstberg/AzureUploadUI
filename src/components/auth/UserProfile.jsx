@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 import { Person } from '@mui/icons-material'
 import { useUser } from '../../hooks/useUser'
+import { ChangePasswordForm } from './ChangePasswordForm'
 
 export function UserProfile() {
   const { user, isLoading } = useUser()
@@ -64,6 +65,15 @@ export function UserProfile() {
           <Typography variant="body1" gutterBottom>
             {user.role === 'ADMIN' ? 'Administrator' : 'Standard User'}
           </Typography>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Security
+          </Typography>
+          <ChangePasswordForm />
         </Box>
       </CardContent>
     </Card>

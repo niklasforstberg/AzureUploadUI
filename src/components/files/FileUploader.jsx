@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
   Box,
   Typography,
   IconButton,
@@ -26,17 +27,6 @@ export function FileUploader({ open, onClose }) {
   const [selectedFile, setSelectedFile] = useState(null)
   const queryClient = useQueryClient()
 
-  const onDrop = useCallback((acceptedFiles) => {
-    if (acceptedFiles?.length > 0) {
-      setSelectedFile(acceptedFiles[0])
-    }
-  }, [])
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false
-  })
-
   const uploadMutation = useMutation({
     mutationFn: fileService.uploadFile,
     onSuccess: (data) => {
@@ -44,6 +34,18 @@ export function FileUploader({ open, onClose }) {
       setSelectedFile(null)
       queryClient.invalidateQueries(['my-files'])
     }
+  })
+
+  const onDrop = useCallback((acceptedFiles) => {
+    if (acceptedFiles?.length > 0) {
+      setSelectedFile(acceptedFiles[0])
+      uploadMutation.reset()
+    }
+  }, [uploadMutation])
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false
   })
 
   const handleUpload = () => {
@@ -183,7 +185,10 @@ export function FileUploader({ open, onClose }) {
 
             {selectedFile && !uploadMutation.isPending && (
               <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                <Button onClick={() => setSelectedFile(null)}>
+                <Button onClick={() => {
+                  setSelectedFile(null)
+                  uploadMutation.reset()
+                }}>
                   Clear
                 </Button>
                 <Button
@@ -198,6 +203,9 @@ export function FileUploader({ open, onClose }) {
           </Box>
         )}
       </DialogContent>
+
+      <DialogActions>
+      </DialogActions>
     </Dialog>
   )
 }
