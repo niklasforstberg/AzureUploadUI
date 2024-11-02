@@ -7,12 +7,25 @@ export const fileService = {
   },
   
   uploadFile: async (formData) => {
-    const { data } = await api.post('/storage/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    try {
+      const { data } = await api.post('/Storage/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      return data
+    } catch (error) {
+      if (error.response?.status === 409) {
+        const message = error.response.data || 'A file with this name already exists'
+        throw new Error(message)
       }
-    })
-    return data
+      console.log('Upload error details:', {
+        status: error.response?.status,
+        url: error.config?.url,
+        method: error.config?.method
+      })
+      throw error
+    }
   },
   
   deleteFile: async (blobName) => {

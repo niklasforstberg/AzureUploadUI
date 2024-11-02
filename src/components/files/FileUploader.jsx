@@ -33,6 +33,9 @@ export function FileUploader({ open, onClose }) {
       setUploadedFile(data)
       setSelectedFile(null)
       queryClient.invalidateQueries(['my-files'])
+    },
+    onError: (error) => {
+      console.error('Upload error:', error)
     }
   })
 
@@ -85,8 +88,24 @@ export function FileUploader({ open, onClose }) {
 
       <DialogContent>
         {uploadMutation.error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            Upload failed: {uploadMutation.error.message}
+          <Alert 
+            severity="error" 
+            sx={{ mb: 2 }}
+            action={
+              uploadMutation.error.response?.status === 409 && (
+                <Button 
+                  color="inherit" 
+                  size="small"
+                  onClick={() => setSelectedFile(null)}
+                >
+                  Choose Different File
+                </Button>
+              )
+            }
+          >
+            {uploadMutation.error.response?.status === 409 
+              ? 'A file with this name already exists. Please rename the file or choose a different one.'
+              : uploadMutation.error.message || 'Failed to upload file. Please try again.'}
           </Alert>
         )}
 
