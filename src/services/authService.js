@@ -24,5 +24,13 @@ export const authService = {
   deleteUser: async (userId) => {
     const { data } = await api.delete(`/auth/users/${userId}`)
     return data
+  },
+  
+  adminChangePassword: async ({ userId, newPassword }) => {
+    const response = await api.put('/auth/admin/change-password', {
+      userId,
+      newPassword
+    })
+    return response.data
   }
 }
