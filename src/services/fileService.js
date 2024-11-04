@@ -36,5 +36,18 @@ export const fileService = {
   getAuditFiles: async (cleanup = false) => {
     const { data } = await api.get(`/storage/audit-files${cleanup ? '?cleanup=true' : ''}`)
     return data
+  },
+  
+  getFileInventory: async () => {
+    const { data } = await api.get('/storage/admin/file-inventory')
+    return data
+  },
+  
+  transferFileOwnership: async (newUserId, files) => {
+    const { data } = await api.post('/storage/transfer-ownership', {
+      newUserId,
+      files
+    })
+    return data
   }
 }

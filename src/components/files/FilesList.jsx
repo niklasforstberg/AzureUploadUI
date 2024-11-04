@@ -60,8 +60,9 @@ export function FilesList({ files }) {
       month: 'numeric',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    })
+      minute: '2-digit',
+      hourCycle: 'h23'
+    }).replace(',', '')
   }
 
   const formatSize = (bytes) => {

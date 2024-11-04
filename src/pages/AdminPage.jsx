@@ -8,6 +8,7 @@ import {
 } from '@mui/material'
 import { UserManagement } from '../components/admin/UserManagement'
 import { AuditDashboard } from '../components/admin/AuditDashboard'
+import { FileTransfer } from '../components/admin/FileTransfer'
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -43,6 +44,7 @@ export function AdminPage() {
         >
           <Tab label="User Management" />
           <Tab label="File Audit" />
+          <Tab label="File Transfer" />
         </Tabs>
 
         <TabPanel value={currentTab} index={0}>
@@ -50,6 +52,9 @@ export function AdminPage() {
         </TabPanel>
         <TabPanel value={currentTab} index={1}>
           <AuditDashboard />
+        </TabPanel>
+        <TabPanel value={currentTab} index={2}>
+          <FileTransfer />
         </TabPanel>
       </Paper>
     </Box>

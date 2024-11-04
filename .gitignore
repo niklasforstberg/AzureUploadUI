@@ -24,6 +24,7 @@ api_info.md
 .env.test.local
 .env.production.local
 .env.*
+.cert
 
 # Logs
 npm-debug.log*
