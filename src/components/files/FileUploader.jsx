@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
   Box,
   Typography,
   IconButton,
@@ -23,34 +24,45 @@ import { fileService } from '../../services/fileService'
 
 export function FileUploader({ open, onClose }) {
   const [uploadedFile, setUploadedFile] = useState(null)
+  const [selectedFile, setSelectedFile] = useState(null)
   const queryClient = useQueryClient()
 
   const uploadMutation = useMutation({
     mutationFn: fileService.uploadFile,
     onSuccess: (data) => {
       setUploadedFile(data)
+      setSelectedFile(null)
       queryClient.invalidateQueries(['my-files'])
+    },
+    onError: (error) => {
+      console.error('Upload error:', error)
     }
   })
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles?.length > 0) {
-      const file = acceptedFiles[0]
-      const formData = new FormData()
-      formData.append('file', file)
-      uploadMutation.mutate(formData)
+      setSelectedFile(acceptedFiles[0])
+      uploadMutation.reset()
     }
   }, [uploadMutation])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    maxFiles: 1,
     multiple: false
   })
+
+  const handleUpload = () => {
+    if (selectedFile) {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      uploadMutation.mutate(formData)
+    }
+  }
 
   const handleClose = () => {
     uploadMutation.reset()
     setUploadedFile(null)
+    setSelectedFile(null)
     onClose()
   }
 
@@ -76,8 +88,24 @@ export function FileUploader({ open, onClose }) {
 
       <DialogContent>
         {uploadMutation.error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            Upload failed: {uploadMutation.error.message}
+          <Alert 
+            severity="error" 
+            sx={{ mb: 2 }}
+            action={
+              uploadMutation.error.response?.status === 409 && (
+                <Button 
+                  color="inherit" 
+                  size="small"
+                  onClick={() => setSelectedFile(null)}
+                >
+                  Choose Different File
+                </Button>
+              )
+            }
+          >
+            {uploadMutation.error.response?.status === 409 
+              ? 'A file with this name already exists. Please rename the file or choose a different one.'
+              : uploadMutation.error.message || 'Failed to upload file. Please try again.'}
           </Alert>
         )}
 
@@ -155,14 +183,13 @@ export function FileUploader({ open, onClose }) {
               <FileUploadIcon sx={{ fontSize: 48, color: 'action.active', mb: 1 }} />
               
               <Typography variant="h6" gutterBottom>
-                {isDragActive ? 
-                  'Drop the file here' : 
-                  'Drag & drop a file here'
-                }
+                {isDragActive ? 'Drop the file here' : 
+                  selectedFile ? `Selected: ${selectedFile.name}` : 
+                  'Drag & drop a file here'}
               </Typography>
               
               <Typography variant="body2" color="text.secondary">
-                or click to select a file
+                {!selectedFile && 'or click to select a file'}
               </Typography>
 
               {uploadMutation.isPending && (
@@ -174,9 +201,30 @@ export function FileUploader({ open, onClose }) {
                 </Box>
               )}
             </Paper>
+
+            {selectedFile && !uploadMutation.isPending && (
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                <Button onClick={() => {
+                  setSelectedFile(null)
+                  uploadMutation.reset()
+                }}>
+                  Clear
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleUpload}
+                  startIcon={<FileUploadIcon />}
+                >
+                  Upload
+                </Button>
+              </Box>
+            )}
           </Box>
         )}
       </DialogContent>
+
+      <DialogActions>
+      </DialogActions>
     </Dialog>
   )
 }

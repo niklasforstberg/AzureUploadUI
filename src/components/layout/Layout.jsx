@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { 
   AppBar, 
@@ -34,6 +34,12 @@ export const Layout = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const handleDrawerToggle = () => {
     setMenuOpen(!menuOpen);
@@ -55,7 +61,6 @@ export const Layout = () => {
   };
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
     { text: 'Files', icon: <CloudUpload />, path: '/files' },
     { text: 'Profile', icon: <Person />, path: '/profile' },
   ];
@@ -98,96 +103,96 @@ export const Layout = () => {
         </Toolbar>
       </AppBar>
 
-      <Drawer
-        variant="temporary"
-        open={menuOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: DRAWER_WIDTH,
-            boxSizing: 'border-box',
-            top: ['48px', '56px', '64px'],
-            height: `calc(100% - 64px)`,
-          },
-        }}
-      >
-        <List>
-          {menuItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                onClick={() => handleNavigate(item.path)}
-              >
-                <ListItemIcon>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
+      {mounted && (
+        <>
+          <Drawer
+            variant="temporary"
+            open={menuOpen}
+            onClose={handleDrawerToggle}
+            ModalProps={{
+              keepMounted: false,
+            }}
+            sx={{
+              '& .MuiDrawer-paper': {
+                width: DRAWER_WIDTH,
+                boxSizing: 'border-box',
+              },
+            }}
+          >
+            <List>
+              {menuItems.map((item) => (
+                <ListItem key={item.text} disablePadding>
+                  <ListItemButton
+                    onClick={() => handleNavigate(item.path)}
+                  >
+                    <ListItemIcon>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={item.text} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Drawer>
 
-      <Drawer
-        variant="temporary"
-        anchor="right"
-        open={profileOpen}
-        onClose={handleProfileToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          '& .MuiDrawer-paper': {
-            width: DRAWER_WIDTH,
-            boxSizing: 'border-box',
-            top: ['48px', '56px', '64px'],
-            height: `calc(100% - 64px)`,
-          },
-        }}
-      >
-        <Box sx={{ p: 2 }}>
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 2, 
-            mb: 2 
-          }}>
-            <Avatar sx={{ width: 40, height: 40 }}>
-              {user?.username?.charAt(0).toUpperCase()}
-            </Avatar>
-            <Box>
-              <Typography variant="subtitle1">
-                {user?.username}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {user?.role}
-              </Typography>
+          <Drawer
+            variant="temporary"
+            anchor="right"
+            open={profileOpen}
+            onClose={handleProfileToggle}
+            ModalProps={{
+              keepMounted: false,
+            }}
+            sx={{
+              '& .MuiDrawer-paper': {
+                width: DRAWER_WIDTH,
+                boxSizing: 'border-box',
+              },
+            }}
+          >
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 2, 
+                mb: 2 
+              }}>
+                <Avatar sx={{ width: 40, height: 40 }}>
+                  {user?.username?.charAt(0).toUpperCase()}
+                </Avatar>
+                <Box>
+                  <Typography variant="subtitle1">
+                    {user?.username}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {user?.role}
+                  </Typography>
+                </Box>
+              </Box>
+              <Divider sx={{ my: 1 }} />
             </Box>
-          </Box>
-          <Divider sx={{ my: 1 }} />
-        </Box>
-        
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => handleNavigate('/profile')}>
-              <ListItemIcon>
-                <AccountCircle />
-              </ListItemIcon>
-              <ListItemText primary="My Profile" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleLogout}>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary="Logout" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
+            
+            <List>
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => handleNavigate('/profile')}>
+                  <ListItemIcon>
+                    <AccountCircle />
+                  </ListItemIcon>
+                  <ListItemText primary="My Profile" />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          </Drawer>
+        </>
+      )}
 
       <Box
         component="main"

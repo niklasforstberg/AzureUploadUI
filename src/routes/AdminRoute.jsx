@@ -1,12 +1,12 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export function AdminRoute() {
+export function AdminRoute({ children }) {
   const { isAdmin } = useAuth();
 
   if (!isAdmin) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/files" replace />;
   }
 
-  return <Outlet />;
+  return children;
 }

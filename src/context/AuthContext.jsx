@@ -9,15 +9,14 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const login = useCallback(async (userData) => {
+  const login = useCallback((userData) => {
     setUser(userData)
     localStorage.setItem('token', userData.token)
-    navigate('/dashboard')
-  }, [navigate])
+  }, [])
 
   const logout = useCallback(() => {
     setUser(null)
-    localStorage.removeItem('token')
+    localStorage.clear()
     queryClient.clear()
     navigate('/login')
   }, [navigate, queryClient])

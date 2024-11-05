@@ -19,15 +19,17 @@ import {
   Button,
   Typography
 } from '@mui/material'
-import { Delete as DeleteIcon } from '@mui/icons-material'
+import { Delete as DeleteIcon, Key as KeyIcon } from '@mui/icons-material'
 import { authService } from '../../services/authService'
 import { useAuth } from '../../context/AuthContext'
+import { ChangePasswordDialog } from './ChangePasswordDialog'
 
 export function UsersList() {
   const { user: currentUser } = useAuth()
   const queryClient = useQueryClient()
   const [deleteUserId, setDeleteUserId] = useState(null)
   const [deleteError, setDeleteError] = useState(null)
+  const [passwordUserId, setPasswordUserId] = useState(null)
 
   const { data: users, isLoading, error } = useQuery({
     queryKey: ['users'],
@@ -43,6 +45,13 @@ export function UsersList() {
     },
     onError: (error) => {
       setDeleteError(error.response?.data || 'Failed to delete user')
+    }
+  })
+
+  const passwordMutation = useMutation({
+    mutationFn: authService.adminChangePassword,
+    onSuccess: () => {
+      setPasswordUserId(null)
     }
   })
 
@@ -97,10 +106,18 @@ export function UsersList() {
                 </TableCell>
                 <TableCell>{user.id}</TableCell>
                 <TableCell align="right">
+                  <IconButton
+                    onClick={() => setPasswordUserId(user.id)}
+                    color="primary"
+                    title="Change password"
+                    sx={{ mr: 1 }}
+                  >
+                    <KeyIcon />
+                  </IconButton>
                   <IconButton 
                     color="error"
                     onClick={() => handleDeleteClick(user.id)}
-                    disabled={user.id === currentUser.id} // Prevent self-deletion
+                    disabled={user.id === currentUser.id}
                     title={user.id === currentUser.id ? "Cannot delete your own account" : "Delete user"}
                   >
                     <DeleteIcon />
@@ -145,6 +162,13 @@ export function UsersList() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ChangePasswordDialog
+        open={Boolean(passwordUserId)}
+        onClose={() => setPasswordUserId(null)}
+        userId={passwordUserId}
+        mutation={passwordMutation}
+      />
     </>
   )
 }

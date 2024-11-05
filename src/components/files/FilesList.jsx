@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState } from 'react'
 import { 
   Typography,
@@ -18,7 +19,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Alert
+  Alert,
+  Link
 } from '@mui/material'
 import { 
   Delete, 
@@ -53,7 +55,14 @@ export function FilesList({ files }) {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString()
+    return new Date(dateString).toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23'
+    }).replace(',', '')
   }
 
   const formatSize = (bytes) => {
@@ -69,97 +78,113 @@ export function FilesList({ files }) {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox" />
-              <TableCell>Name</TableCell>
-              <TableCell align="right">Uploaded</TableCell>
-              <TableCell sx={{ pr: 0 }}>URL</TableCell>
-              <TableCell align="right" sx={{ pl: 1 }}>Actions</TableCell>
+              <TableCell padding="checkbox" sx={{ width: '40px' }} />
+              <TableCell sx={{ width: '200px' }}>Name</TableCell>
+              <TableCell align="right" sx={{ width: '150px' }}>Uploaded</TableCell>
+              <TableCell sx={{ pr: 0, width: 'auto' }}>URL</TableCell>
+              <TableCell align="right" sx={{ pl: 1, width: '100px' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {files.map((file) => [
-              <TableRow 
-                key={`${file.id}-main`}
-                sx={{ 
-                  '&:hover': { bgcolor: 'action.hover' },
-                  cursor: 'pointer'
-                }}
-              >
-                <TableCell padding="checkbox">
-                  <IconButton
-                    size="small"
+            {files.map((file) => (
+              <React.Fragment key={file.id}>
+                <TableRow 
+                  sx={{ 
+                    '&:hover': { bgcolor: 'action.hover' },
+                    cursor: 'pointer'
+                  }}
+                >
+                  <TableCell padding="checkbox">
+                    <IconButton
+                      size="small"
+                      onClick={() => setExpandedId(expandedId === file.id ? null : file.id)}
+                    >
+                      {expandedId === file.id ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                    </IconButton>
+                  </TableCell>
+                  <TableCell 
+                    component="th" 
+                    scope="row"
                     onClick={() => setExpandedId(expandedId === file.id ? null : file.id)}
                   >
-                    {expandedId === file.id ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                  </IconButton>
-                </TableCell>
-                <TableCell 
-                  component="th" 
-                  scope="row"
-                  onClick={() => setExpandedId(expandedId === file.id ? null : file.id)}
-                >
-                  {file.blobName}
-                </TableCell>
-                <TableCell 
-                  align="right"
-                  onClick={() => setExpandedId(expandedId === file.id ? null : file.id)}
-                >
-                  {formatDate(file.uploadDate)}
-                </TableCell>
-                <TableCell 
-                  sx={{
-                    maxWidth: '300px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    fontFamily: 'monospace',
-                    fontSize: '0.8rem',
-                    pr: 0
-                  }}
-                >
-                  {file.azureUri}
-                </TableCell>
-                <TableCell 
-                  align="right" 
-                  sx={{ 
-                    whiteSpace: 'nowrap',
-                    pl: 1
-                  }}
-                >
-                  <IconButton 
-                    size="small" 
-                    onClick={() => handleCopyUrl(file.azureUri)}
-                    color="primary"
+                    {file.blobName}
+                  </TableCell>
+                  <TableCell 
+                    align="right"
+                    onClick={() => setExpandedId(expandedId === file.id ? null : file.id)}
                   >
-                    <ContentCopy fontSize="small" />
-                  </IconButton>
-                  <IconButton 
-                    size="small" 
-                    onClick={() => setDeleteFile(file)}
-                    color="error"
+                    {formatDate(file.uploadDate)}
+                  </TableCell>
+                  <TableCell 
+                    sx={{
+                      maxWidth: '300px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      fontFamily: 'monospace',
+                      fontSize: '0.8rem',
+                      pr: 0
+                    }}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Delete fontSize="small" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>,
-              <TableRow key={`${file.id}-collapse`}>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-                  <Collapse in={expandedId === file.id} timeout="auto" unmountOnExit>
-                    <Box sx={{ py: 2, px: 3 }}>
-                      <Typography variant="subtitle2" gutterBottom>
-                        File Details
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Original Filename: {file.fileName}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Size: {formatSize(file.size)}
-                      </Typography>
-                    </Box>
-                  </Collapse>
-                </TableCell>
-              </TableRow>
-            ])}
+                    <Link
+                      href={file.azureUri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        color: 'inherit',
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline'
+                        }
+                      }}
+                    >
+                      {file.azureUri}
+                    </Link>
+                  </TableCell>
+                  <TableCell 
+                    align="right" 
+                    sx={{ 
+                      whiteSpace: 'nowrap',
+                      pl: 1
+                    }}
+                  >
+                    <IconButton 
+                      size="small" 
+                      onClick={() => handleCopyUrl(file.azureUri)}
+                      color="primary"
+                    >
+                      <ContentCopy fontSize="small" />
+                    </IconButton>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => setDeleteFile(file)}
+                      color="error"
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                    <Collapse in={expandedId === file.id} timeout="auto" unmountOnExit>
+                      <Box sx={{ py: 2, px: 3 }}>
+                        <Typography variant="subtitle2" gutterBottom>
+                          File Details
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          Original Filename: {file.fileName}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                          Size: {formatSize(file.size)}
+                        </Typography>
+                      </Box>
+                    </Collapse>
+                  </TableCell>
+                </TableRow>
+              </React.Fragment>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
