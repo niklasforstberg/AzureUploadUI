@@ -44,7 +44,7 @@ export function AdminPage() {
         >
           <Tab label="User Management" />
           <Tab label="File Audit" />
-          <Tab label="File Transfer" />
+          <Tab label="File Ownership Transfer" />
         </Tabs>
 
         <TabPanel value={currentTab} index={0}>

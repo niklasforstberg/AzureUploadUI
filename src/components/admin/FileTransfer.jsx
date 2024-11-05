@@ -111,7 +111,7 @@ export function FileTransfer() {
           disabled={!canTransfer}
           onClick={() => setTransferDialogOpen(true)}
         >
-          Transfer Selected Files
+          Transfer Ownership of Selected Files
         </Button>
       </Box>
 
@@ -179,7 +179,7 @@ export function FileTransfer() {
       </TableContainer>
 
       <Dialog open={transferDialogOpen} onClose={() => setTransferDialogOpen(false)}>
-        <DialogTitle>Transfer Files</DialogTitle>
+        <DialogTitle>Transfer Ownership</DialogTitle>
         <DialogContent>
           <Box sx={{ mb: 2, mt: 1 }}>
             <FormControl fullWidth>
