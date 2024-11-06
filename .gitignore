@@ -62,3 +62,10 @@ logs
 # Misc
 .DS_Store
 Thumbs.db
+
+#cert
+*.pfx
+*.cer
+*.key
+*.pem
+
